@@ -6,23 +6,25 @@ import { redirect } from "next/navigation";
 import { useState } from "react";
 import { Spinner } from "./ui/spinner";
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  function handleLogin(event: React.FormEvent<HTMLFormElement>) {
+  function handleRegister(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const senha = formData.get("senha") as string;
 
-    authClient.signIn.email(
+    authClient.signUp.email(
       {
+        name: name,
         email: email,
         password: senha
       },
       {
-        onSuccess: () => redirect("/dashboard"),
+        onSuccess: () => redirect("/login"),
         onRequest: () => setLoading(true),
         onResponse: () => setLoading(false),
         onError: (ctx) => setError(ctx.error.message)
@@ -31,7 +33,20 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleLogin} className="space-y-4">
+    <form onSubmit={handleRegister} className="space-y-4">
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium mb-2">
+          Nome
+        </label>
+        <Input 
+          id="name"
+          name="name" 
+          type="text" 
+          required 
+          placeholder="Seu nome"
+        />
+      </div>
+
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-2">
           Email
@@ -55,11 +70,12 @@ export default function LoginForm() {
           type="password" 
           required 
           placeholder="••••••••"
+          minLength={6}
         />
       </div>
 
       <Button type="submit" disabled={loading} className="w-full">
-        {loading ? <Spinner /> : "Entrar"}
+        {loading ? <Spinner /> : "Criar conta"}
       </Button>
 
       {error && (
